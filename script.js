@@ -34,7 +34,7 @@ const loadSongs = () => {
         cache: 'default'
     };
 
-    let songsJSON = "https://raw.githubusercontent.com/davidbit91/clone-lastfm/master/music.json";
+    let songsJSON = "https://raw.githubusercontent.com/formacion-web/clone-lastfm/master/music.json";
 
 
     let connect = fetch(songsJSON);
@@ -42,7 +42,9 @@ const loadSongs = () => {
     connect.then(val =>
         val.json()
     ).then(songs => {
-        console.log(songs);
+        songs.forEach(e => {
+            console.log(e);
+        });
     });
 
     
