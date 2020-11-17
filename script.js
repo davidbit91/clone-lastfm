@@ -10,8 +10,20 @@ class Song {
         this.genre = genre;
     }
 
+   
     setItemLi() {
+        let ul = document.getElementById("ulList");
+
+        let li = document.createElement("li");
+        li.innerHTML = `<a class="group-name" title="Ir al Grupo" href="${this.url}">${this.artist.name}</a>
+                        <a class="song-title">${this.name}</a>
+                        <div class="listeners">${this.listeners}</div>`;
+        ul.appendChild(li);
     }
+    addSongs(s){
+        songs.push(s);
+    }
+
     setItemGroupName(group, url) {
     }
     setItemSongTitle(title) {
@@ -20,8 +32,9 @@ class Song {
     }
     getNewElement(group, url, title, listeners) {
     }
-
 }
+var songs = [];
+
 
 const loadSongs = () => {
     const cors = {
@@ -34,23 +47,36 @@ const loadSongs = () => {
         cache: 'default'
     };
 
-    let songsJSON = "https://raw.githubusercontent.com/formacion-web/clone-lastfm/master/music.json";
+    let songsJSON = "https://raw.githubusercontent.com/davidbit91/clone-lastfm/master/music.json";
 
 
     let connect = fetch(songsJSON);
-
     connect.then(val =>
         val.json()
     ).then(songs => {
         songs.forEach(e => {
-            console.log(e);
+            let s = new Song(e.name,e.duration,e.listeners,e.mbid,e.url,e.artist,`${e.attr}`,e.genre);
+            s.setItemLi();
+            s.addSongs(e);            
         });
     });
-
-    
+        
+        //loadOverview(artists);
 }
 
-const loadOverview = () => {
+const loadOverview = (artists) => {
+    
+    let ul = document.getElementById("ulList");
+
+    let li = document.createElement("li");
+    li.innerHTML = "";
+    ul.appendChild(li);
+    
+    for(let i = 0; i<artists.length;i++){
+        ul.innerHTML += i;
+    }
+    
+    
 }
 
 const loadTenListened = () => {
@@ -62,7 +88,9 @@ const loadBiggest = (e) => {
 }
 
 const init = () => {
-    loadSongs();
+   loadSongs();
+   console.log(songs);
+
 }
 
 
