@@ -1,98 +1,101 @@
 class Song {
-    constructor(name, duration, listeners, mbid, url, artist, attr, genre) {
-        this.name = name;
-        this.duration = duration;
-        this.listeners = listeners;
-        this.mbid = mbid;
-        this.url = url;
-        this.artist = artist;
-        this.attr = attr;
-        this.genre = genre;
-    }
+  songs = [];
 
-   
-    setItemLi() {
-        let ul = document.getElementById("ulList");
+  constructor() {
+    this.songs = [];
+    console.log(this.songs);
+  }
 
-        let li = document.createElement("li");
-        li.innerHTML = `<a class="group-name" title="Ir al Grupo" href="${this.url}">${this.artist.name}</a>
-                        <a class="song-title">${this.name}</a>
-                        <div class="listeners">${this.listeners}</div>`;
-        ul.appendChild(li);
-    }
-    addSongs(s){
-        songs.push(s);
-    }
-
-    setItemGroupName(group, url) {
-    }
-    setItemSongTitle(title) {
-    }
-    setListeners(listeners) {
-    }
-    getNewElement(group, url, title, listeners) {
-    }
-}
-var songs = [];
-
-
-const loadSongs = () => {
-    const cors = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json', "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": true
-        },
-        mode: 'no-cors',
-        cache: 'default'
-    };
-
-    let songsJSON = "https://raw.githubusercontent.com/davidbit91/clone-lastfm/master/music.json";
-
-
-    let connect = fetch(songsJSON);
-    connect.then(val =>
-        val.json()
-    ).then(songs => {
-        songs.forEach(e => {
-            let s = new Song(e.name,e.duration,e.listeners,e.mbid,e.url,e.artist,`${e.attr}`,e.genre);
-            s.setItemLi();
-            s.addSongs(e);            
-        });
-    });
-        
-        //loadOverview(artists);
-}
-
-const loadOverview = (artists) => {
-    
+  setItemLi(e) {
     let ul = document.getElementById("ulList");
 
     let li = document.createElement("li");
-    li.innerHTML = "";
+    li.innerHTML = `<a class="group-name" title="Ir al Grupo" href="${e.url}">${e.artist.name}</a>
+                        <a class="song-title">${e.name}</a>
+                        <div class="listeners">${e.listeners}</div>`;
     ul.appendChild(li);
-    
-    for(let i = 0; i<artists.length;i++){
-        ul.innerHTML += i;
+  }
+
+  addSongs(s) {
+    this.songs.push(s);
+  }
+
+}
+
+var song = new Song();
+
+const loadSongs = async (so) => {
+  const cors = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": true,
+    },
+    mode: "no-cors",
+    cache: "default",
+  };
+
+  let connect = await fetch("./music.json");
+  /*await connect
+    .then((val) => val.json())
+    .then((s) => {
+      s.forEach((e) => {        
+        so.addSongs(e);
+        so.setItemLi(e);        
+      });
+    });*/
+  let json = await connect.json();
+  json.forEach((e) => {
+    so.addSongs(e);
+    so.setItemLi(e);
+  });
+
+  return so;
+};
+
+function cambiarOpcion(opcion, s) {
+  ulList.innerHTML = "";
+
+  switch (opcion) {
+    case "rock":
+    case "reggae":
+    case "hip-hop":
+    case "jazz":
+      for (let i = 0; i < s.songs.length; i++) {
+        if (opcion == s.songs[i].genre) {
+          s.setItemLi(s.songs[i]);
+        }
+      }
+      break;
+    case "overview":
+      for (let i = 0; i < s.songs.length; i++) {
+          s.setItemLi(s.songs[i]);
+      }
+      break;
+    case "top10":
+      s.songs.sort((a, b) => b.listeners - a.listeners);
+      for (let i = 0; i < 10; i++) {
+        s.setItemLi(s.songs[i]);
     }
-    
-    
+      break;
+    case "biggest":
+      break;
+      default:
+        for (let i = 0; i < s.songs.length; i++) {
+          s.setItemLi(s.songs[i]);
+      }
+        break;
+
+  }
+  
 }
 
-const loadTenListened = () => {
+function top10() {}
 
-}
-
-const loadBiggest = (e) => {
-
-}
-
-const init = () => {
-   loadSongs();
-   console.log(songs);
-
-}
-
+const init = async () => {
+  await loadSongs(song);
+  cambiarOpcion("top10", song);
+};
 
 window.onload = init;
-
