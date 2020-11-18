@@ -3,7 +3,6 @@ class Song {
 
   constructor() {
     this.songs = [];
-    console.log(this.songs);
   }
 
   setItemLi(e) {
@@ -19,7 +18,6 @@ class Song {
   addSongs(s) {
     this.songs.push(s);
   }
-
 }
 
 var song = new Song();
@@ -37,14 +35,6 @@ const loadSongs = async (so) => {
   };
 
   let connect = await fetch("./music.json");
-  /*await connect
-    .then((val) => val.json())
-    .then((s) => {
-      s.forEach((e) => {        
-        so.addSongs(e);
-        so.setItemLi(e);        
-      });
-    });*/
   let json = await connect.json();
   json.forEach((e) => {
     so.addSongs(e);
@@ -70,32 +60,68 @@ function cambiarOpcion(opcion, s) {
       break;
     case "overview":
       for (let i = 0; i < s.songs.length; i++) {
-          s.setItemLi(s.songs[i]);
+        s.setItemLi(s.songs[i]);
       }
       break;
     case "top10":
       s.songs.sort((a, b) => b.listeners - a.listeners);
       for (let i = 0; i < 10; i++) {
         s.setItemLi(s.songs[i]);
-    }
+      }
       break;
     case "biggest":
-      break;
-      default:
-        for (let i = 0; i < s.songs.length; i++) {
-          s.setItemLi(s.songs[i]);
-      }
-        break;
+      let biggest = [];
 
+      let names = [];
+      for (let i = 0; i < s.songs.length; i++) {
+        names[i] = {
+          name: s.songs[i].artist.name,
+          listeners: 0
+        };
+      }
+      
+      //Quita los duplicados
+      names = names.filter(
+        (n, index, self) =>
+          index ===
+          self.findIndex(
+            (t) => t.name === n.name && t.name === n.name
+          )
+      );
+
+      //Paso por el primero de los nombres y voy recorriendo la array original para ver las canciones con el mismo autor y ir sumando los listeners
+      for (let i = 0; i < names.length; i++) {
+        for (let j = 0; j < s.songs.length; j++) {
+          if(names[i].name == s.songs[j].artist.name){
+            names[i].listeners += parseInt(s.songs[j].listeners);
+          }
+        }
+      }
+      names.sort((a, b) => b.listeners - a.listeners).slice(0,1);
+
+      for(let i=0; i<s.songs.length;i++){
+        if(names[0].name == s.songs[i].artist.name){
+          s.setItemLi(s.songs[i]);
+        }
+      }
+      break;
+    default:
+      for (let i = 0; i < s.songs.length; i++) {
+        s.setItemLi(s.songs[i]);
+      }
+      break;
   }
-  
 }
+
+const filtro = (value, index, self) => {
+  return self.indexOf(value) === index;
+};
 
 function top10() {}
 
 const init = async () => {
   await loadSongs(song);
-  cambiarOpcion("top10", song);
+  cambiarOpcion("biggest", song);
 };
 
 window.onload = init;
